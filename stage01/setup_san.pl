@@ -48,7 +48,8 @@ $ENV{'EUCALYPTUS'} = "/opt/eucalyptus";
 my $bzr_branch = "main-equallogic";
 my $arch = "64";
 
-my $script_2_use = "iscsidev-ubuntu.sh";
+#my $script_2_use = "iscsidev-ubuntu.sh";
+my $script_2_use = "iscsidev.sh";
 
 #### read the input list
 
@@ -227,6 +228,7 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi.rules /etc/udev/rules.d/. \" ");
 	
 
+			
 			if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){ 
 				$script_2_use = "iscsidev-ubuntu.sh";
 			}elsif( $this_distro eq "OPENSUSE" ){
@@ -246,14 +248,16 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"chmod +x /etc/udev/scripts/iscsidev.sh \"\n");
         	        system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"chmod +x /etc/udev/scripts/iscsidev.sh \" ");
 
-			if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){
-				#udevamd control --reload-rules
-				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevadm control --reload-rules \"\n");
-		                system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevadm control --reload-rules \" ");
-			}else{
-				#udevamd control --reload-rules
-				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevcontrol reload_rules\"\n");
-		                system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevcontrol reload_rules\" ");
+			if( is_before_dual_repo() == 1 ){					### ADDED 052312
+				if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){
+					#udevamd control --reload-rules
+					print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevadm control --reload-rules \"\n");
+		        	        system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevadm control --reload-rules \" ");
+				}else{
+					#udevamd control --reload-rules
+					print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevcontrol reload_rules\"\n");
+		        	        system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"udevcontrol reload_rules\" ");
+				};
 			};
 
 			if( is_mod_sudoers_for_ebs_from_memo() == 1 ){
@@ -318,7 +322,28 @@ sub is_mod_sudoers_for_ebs_from_memo{
 	return 0;
 };
 
+sub is_euca_version_from_memo{
+        if( $ENV{'QA_MEMO'} =~ /^EUCA_VERSION=(.+)\n/m ){
+                my $extra = $1;
+                $extra =~ s/\r//g;
+                print "FOUND in MEMO\n";
+                print "EUCA_VERSION=$extra\n";
+                $ENV{'QA_MEMO_EUCA_VERSION'} = $extra;
+                return 1;
+        };
+        return 0;
+};
 
+sub is_before_dual_repo{
+	if( is_euca_version_from_memo() ){
+		if( $ENV{'QA_MEMO_EUCA_VERSION'} =~ /^2/ || $ENV{'QA_MEMO_EUCA_VERSION'} =~ /^3\.0/ ){
+			return 1;
+		};
+	};
+	return 0;
+};  
+
+1;
 
 
 
