@@ -174,6 +174,7 @@ chomp($nc_ip);
 for( my $i = 0; $i < @ip_lst; $i++ ){
 	my $this_ip = $ip_lst[$i];
 	my $this_distro = $distro_lst[$i];
+	my $this_version = $version_lst[$i];
 	my $this_source = $source_lst[$i];
 	my $this_roll = $roll_lst[$i];
 	my $stripped_roll = strip_num($this_roll);
@@ -189,7 +190,6 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 
 		if( does_It_Have($stripped_roll, "SC") || does_It_Have($stripped_roll, "NC") ){
 			print "$this_ip : Setting up SAN on Storage-Controller\n"; 
-
 		
 			# copy the 55-openiscsi.rules to /etc/udev/rules
 #			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi.rules /etc/udev/rules.d/. \"\n");
@@ -198,6 +198,20 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 			###	Changed to 55-openiscsi*		061412
 			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi* /etc/udev/rules.d/. \"\n");
 			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi* /etc/udev/rules.d/. \" ");
+
+			###	FOR UBUNTU AND CENTOS/RHEL 5, use legacy rules	061412
+			if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){
+				if( $this_version eq "LUCID" ){
+					print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"mv -f /etc/udev/rules.d/55-openiscsi-legacy.rules /etc/udev/rules.d/55-openiscsi.rules\"\n");
+					system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"mv -f /etc/udev/rules.d/55-openiscsi-legacy.rules /etc/udev/rules.d/55-openiscsi.rules\" ");
+				};
+                       }elsif( $this_distro eq "CENTOS" || $this_distro eq "RHEL" ){
+				if( $this_version =~ /^5/ ){
+					print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"mv -f /etc/udev/rules.d/55-openiscsi-legacy.rules /etc/udev/rules.d/55-openiscsi.rules\"\n");
+					system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"mv -f /etc/udev/rules.d/55-openiscsi-legacy.rules /etc/udev/rules.d/55-openiscsi.rules\" ");
+				};
+			};
+
 
 			###	ONE SCRIPT TO RULE THEM ALL		061412
 			$script_2_use = "iscsidev.sh";
