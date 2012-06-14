@@ -48,7 +48,6 @@ $ENV{'EUCALYPTUS'} = "/opt/eucalyptus";
 my $bzr_branch = "main-equallogic";
 my $arch = "64";
 
-#my $script_2_use = "iscsidev-ubuntu.sh";
 my $script_2_use = "iscsidev.sh";
 
 #### read the input list
@@ -180,62 +179,36 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 	my $stripped_roll = strip_num($this_roll);
 
 	if( $this_source eq "PACKAGE" || $this_source eq "REPO" ){
-#		$ENV{'EUCALYPTUS'} = "";
-###		do nothing... Package install should take care of all the below ops. 	
+
+		$ENV{'EUCALYPTUS'} = "";
+		###	DO NOTHING... Package install should take care of all the below ops.
+
 	}else{
+
 		$ENV{'EUCALYPTUS'} = "/opt/eucalyptus";
 
 		if( does_It_Have($stripped_roll, "SC") || does_It_Have($stripped_roll, "NC") ){
-			print "$this_ip : Setting up SAN on this Storage-Controller\n"; 
-
-
-			# install open-iscsi package
-			### packages libcrypt-openssl-random-perl libcrypt-openssl-rsa-perl libcrypt-openssl-x509-perl needed to be installed on OPENSUSE and CENTOS
-		
-			if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){		
-#				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"apt-get -y install open-iscsi libcrypt-openssl-random-perl libcrypt-openssl-rsa-perl libcrypt-openssl-x509-perl\"\n");
-#				system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"apt-get -y install open-iscsi libcrypt-openssl-random-perl libcrypt-openssl-rsa-perl libcrypt-openssl-x509-perl\" ");
-
-				# start the demon
- #       	                print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"/etc/init.d/open-iscsi start \"\n");
-  #      	                system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"/etc/init.d/open-iscsi start \" ");
-
-			}elsif( $this_distro eq "OPENSUSE"){
-#				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"zypper -n in open-iscsi \"\n");
-#				system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"zypper -n in open-iscsi \" ");
-
-				# start the demon
-#				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"/etc/init.d/open-iscsi start \"\n");
-#	        	        system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"/etc/init.d/open-iscsi start \" ");
-
-			}elsif( $this_distro eq "CENTOS" || $this_distro eq "FEDORA" ){
-#				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"yum install -y open-iscsi \"\n");
- #       	                system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"yum install -y open-iscsi \" ");
-
-				# kill currently running iscsid demon
-#				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"killall -9 iscsid \"\n");
-#		                system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"killall -9 iscsid \" ");
-
-				# start the demon
-#				print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"/etc/init.d/iscsid start \"\n");
-#		                system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"/etc/init.d/iscsid start \" ");
-
-			};
+			print "$this_ip : Setting up SAN on Storage-Controller\n"; 
 
 		
 			# copy the 55-openiscsi.rules to /etc/udev/rules
-			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi.rules /etc/udev/rules.d/. \"\n");
-			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi.rules /etc/udev/rules.d/. \" ");
-	
+#			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi.rules /etc/udev/rules.d/. \"\n");
+#			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi.rules /etc/udev/rules.d/. \" ");
 
+			###	Changed to 55-openiscsi*		061412
+			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi* /etc/udev/rules.d/. \"\n");
+			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"cp $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/udev/55-openiscsi* /etc/udev/rules.d/. \" ");
+
+			###	ONE SCRIPT TO RULE THEM ALL		061412
+			$script_2_use = "iscsidev.sh";
 			
-			if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){ 
-				$script_2_use = "iscsidev-ubuntu.sh";
-			}elsif( $this_distro eq "OPENSUSE" ){
-				$script_2_use = "iscsidev-opensuse.sh";
-			}elsif( $this_distro eq "CENTOS" || $this_distro eq "FEDORA" || $this_distro eq "RHEL" ){
-				$script_2_use = "iscsidev-centos.sh";
-			};
+#			if( $this_distro eq "UBUNTU" || $this_distro eq "DEBIAN" ){ 
+#				$script_2_use = "iscsidev-ubuntu.sh";
+#			}elsif( $this_distro eq "OPENSUSE" ){
+#				$script_2_use = "iscsidev-opensuse.sh";
+#			}elsif( $this_distro eq "CENTOS" || $this_distro eq "FEDORA" || $this_distro eq "RHEL" ){
+#				$script_2_use = "iscsidev-centos.sh";
+#			};
 
 			# copy the iscsidev-*.sh to /etc/udev/script
 			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"mkdir -p /etc/udev/scripts/ \"\n");
@@ -280,21 +253,7 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 	                	        system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"echo \"eucalyptus ALL=NOPASSWD: $ENV{'EUCALYPTUS'}/usr/share/eucalyptus/get_iscsitarget.pl\" >> /etc/sudoers\" ");
 				};
 
-			};
-
-
-			# copy the groovy file to the machine
-	#		print("scp -o StrictHostKeyChecking=no /exports/disk1/www/4_test_server/4_san/storageprops.groovy root\@$this_ip:$ENV{'EUCALYPTUS'}/etc/eucalyptus/cloud.d/scripts/\n");
-	#		system("scp -o StrictHostKeyChecking=no /exports/disk1/www/4_test_server/4_san/storageprops.groovy root\@$this_ip:$ENV{'EUCALYPTUS'}/etc/eucalyptus/cloud.d/scripts/ ");
-
-	#		# install licence file
-	#		if( $this_distro eq "CENTOS" && $arch eq "64" ){
-	#			if( does_It_Have($stripped_roll, "SC") || does_It_Have($stripped_roll, "CLC") || does_It_Have($stripped_roll, "WS") ){
-	#				print("scp -o StrictHostKeyChecking=no /home/test-server/temp_space/4_equallogic/nurmi-equallogic-1272603DC9D-license.pem root\@$this_ip:$ENV{'EUCALYPTUS'}/etc/eucalyptus/.\n");
-	#                		system("scp -o StrictHostKeyChecking=no /home/test-server/temp_space/4_equallogic/nurmi-equallogic-1272603DC9D-license.pem root\@$this_ip:$ENV{'EUCALYPTUS'}/etc/eucalyptus/.");
-	#			};
-	#		};
-		
+			};		
 		};
 	};
 };
