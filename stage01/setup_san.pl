@@ -233,7 +233,7 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 				$script_2_use = "iscsidev-ubuntu.sh";
 			}elsif( $this_distro eq "OPENSUSE" ){
 				$script_2_use = "iscsidev-opensuse.sh";
-			}elsif( $this_distro eq "CENTOS" || $this_distro eq "FEDORA" ){
+			}elsif( $this_distro eq "CENTOS" || $this_distro eq "FEDORA" || $this_distro eq "RHEL" ){
 				$script_2_use = "iscsidev-centos.sh";
 			};
 
