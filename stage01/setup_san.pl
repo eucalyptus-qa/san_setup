@@ -170,6 +170,10 @@ if( $nc_ip eq "" ){
 
 chomp($nc_ip);
 
+my $san_provider = "NULL";
+if( is_san_provider_from_memo() == 1 ){
+	$san_provider = $ENV{'QA_MEMO_SAN_PROVIDER'};
+};
 
 for( my $i = 0; $i < @ip_lst; $i++ ){
 	my $this_ip = $ip_lst[$i];
@@ -178,6 +182,23 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 	my $this_source = $source_lst[$i];
 	my $this_roll = $roll_lst[$i];
 	my $stripped_roll = strip_num($this_roll);
+
+
+	###	ADDED 8/8/12 for VNX Support
+	if( $san_provider eq "EmcVnxProvider" ){
+		if( $this_distro eq "RHEL" && $this_version =~ /^6\./ && does_It_Have($stripped_roll, "SC") ){
+			print "$this_ip : Setting up VNX CLI TOOL on Storage-Controller\n"; 
+		
+			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"wget qa-server/4qa/vnx/navicli-linux-64-x86-en_us-7.30.15.0.44-1.x86_64.rpm\"\n");
+			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"wget qa-server/4qa/vnx/navicli-linux-64-x86-en_us-7.30.15.0.44-1.x86_64.rpm\" ");
+			sleep(1);
+
+			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"yum -y install navicli-linux-64-x86-en_us-7.30.15.0.44-1.x86_64.rpm\"\n");
+			system("ssh -o StrictHostKeyChecking=no root\@$this_ip \"yum -y install navicli-linux-64-x86-en_us-7.30.15.0.44-1.x86_64.rpm\" ");
+
+		};
+	};
+
 
 	if( $this_source eq "PACKAGE" || $this_source eq "REPO" ){
 
@@ -315,6 +336,20 @@ sub is_before_dual_repo{
 	};
 	return 0;
 };  
+
+sub is_san_provider_from_memo{
+	if( $ENV{'QA_MEMO'} =~ /^SAN_PROVIDER=(.+)\n/m ){
+		my $extra = $1;
+		$extra =~ s/\r//g;
+		print "FOUND in MEMO\n";
+		print "SAN_PROVIDER=$extra\n";
+		$ENV{'QA_MEMO_SAN_PROVIDER'} = $extra;
+		return 1;
+	};
+	return 0;
+};
+
+
 
 1;
 
