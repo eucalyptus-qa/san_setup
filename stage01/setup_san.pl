@@ -186,7 +186,7 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 
 	###	ADDED 8/8/12 for VNX Support
 	if( $san_provider eq "EmcVnxProvider" ){
-		if( $this_distro eq "RHEL" && $this_version =~ /^6\./ && does_It_Have($stripped_roll, "SC") ){
+		if( ($this_distro eq "RHEL" || $this_distro eq "CENTOS") && $this_version =~ /^6\./ && does_It_Have($stripped_roll, "SC") ){
 			print "$this_ip : Setting up VNX CLI TOOL on Storage-Controller\n"; 
 		
 			print("ssh -o StrictHostKeyChecking=no root\@$this_ip \"wget qa-server/4qa/vnx/navicli-linux-64-x86-en_us-7.30.15.0.44-1.x86_64.rpm\"\n");
