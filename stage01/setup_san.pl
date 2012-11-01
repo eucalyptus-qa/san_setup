@@ -185,7 +185,8 @@ for( my $i = 0; $i < @ip_lst; $i++ ){
 
 
 	###	ADDED 8/8/12 for VNX Support
-	if( $san_provider eq "EmcVnxProvider" ){
+	###	ADDED FastSNap	11/01/12
+	if( $san_provider eq "EmcVnxProvider" || $san_provider eq "EmcVnxProviderFastSnap" ){
 		if( ($this_distro eq "RHEL" || $this_distro eq "CENTOS") && $this_version =~ /^6\./ && does_It_Have($stripped_roll, "SC") ){
 			print "$this_ip : Setting up VNX CLI TOOL on Storage-Controller\n"; 
 		
