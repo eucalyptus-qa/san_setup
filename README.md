@@ -1,3 +1,24 @@
+
+san_setup
+=========
+
+## Description
+
+For source-build, copy san-related scripts to /etc/udev directories.
+
+## Procedure
+
+1. Find out what each host role is
+2. Install  iSCSI,  then start the daemon on any NC or SC
+3. Copy over the rules to the NC or SC
+4. Copy over iSCSI script appropriate for each distro
+5. Reload rules using udevadm control --reload-rules
+6. Modify sudoers for user eucalyptus to allow running the connec and disconnect scripts, make sure to pass SC the *_sc version of the *connect_iscsitarget* scripts to SCs and the normal one to the rest of the roles
+
+
+<hr><hr><hr>
+
+
 # Eucalyptus Testunit Framework
 
 Eucalyptus Testunit Framework is designed to run a list of test scripts written by Eucalyptus developers.
